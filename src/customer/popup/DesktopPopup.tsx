@@ -251,11 +251,25 @@ const DesktopPopup: React.FC<DesktopPopupProps> = ({
     if (saved) setBannerUrl(saved);
   }, []);
 
-  // Show popup
+  // Show popup after delay
   useEffect(() => {
     const timer = setTimeout(() => setVisible(true), delay);
     return () => clearTimeout(timer);
   }, [delay]);
+
+  // Disable background scroll
+  useEffect(() => {
+    document.body.style.overflow = visible ? "hidden" : "auto";
+  }, [visible]);
+
+  // ESC key close
+  useEffect(() => {
+    const handleEsc = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setVisible(false);
+    };
+    window.addEventListener("keydown", handleEsc);
+    return () => window.removeEventListener("keydown", handleEsc);
+  }, []);
 
   const handleBannerClick = () => setShowMobileInput(true);
 
@@ -265,6 +279,7 @@ const DesktopPopup: React.FC<DesktopPopupProps> = ({
 
   const handleSubmit = () => {
     const num = mobileNumber.replace(/\D/g, "");
+
     if (num === allowedMobile && uploadedFile) {
       const reader = new FileReader();
       reader.onload = (e) => {
@@ -272,23 +287,20 @@ const DesktopPopup: React.FC<DesktopPopupProps> = ({
         setBannerUrl(url);
         localStorage.setItem("bannerUrl", url);
         setShowMobileInput(false);
-        setMobileNumber("");
-        setUploadedFile(null);
       };
       reader.readAsDataURL(uploadedFile);
-    } else {
-      setShowMobileInput(false);
-      setMobileNumber("");
-      setUploadedFile(null);
     }
+
+    setMobileNumber("");
+    setUploadedFile(null);
   };
 
   if (!visible) return null;
 
   return (
-    <div className="overlay">
-      <div className="popup">
-
+    <div className="overlay" onClick={() => setVisible(false)}>
+      <div className="popup" onClick={(e) => e.stopPropagation()}>
+        
         {/* Image */}
         <img
           src={bannerUrl}
@@ -301,8 +313,8 @@ const DesktopPopup: React.FC<DesktopPopupProps> = ({
         {showMobileInput && (
           <div className="inputBox">
             <input
-              type="text"
-              placeholder="Enter mobile"
+              type="tel"
+              placeholder="Enter mobile number"
               value={mobileNumber}
               onChange={(e) => setMobileNumber(e.target.value)}
             />
@@ -312,7 +324,7 @@ const DesktopPopup: React.FC<DesktopPopupProps> = ({
               <input type="file" hidden onChange={handleFileSelect} />
             </label>
 
-            <button onClick={handleSubmit}>OK</button>
+            <button onClick={handleSubmit}>Submit</button>
           </div>
         )}
 
@@ -323,54 +335,52 @@ const DesktopPopup: React.FC<DesktopPopupProps> = ({
       <style>{`
         .overlay{
           position:fixed;
-          top:0;
-          left:0;
-          width:100%;
-          height:100%;
-          background:rgba(0,0,0,0.65);
+          inset:0;
+          background:rgba(0,0,0,0.7);
           display:flex;
           justify-content:center;
           align-items:center;
           z-index:9999;
-          padding:10px;
+          padding:12px;
+          backdrop-filter:blur(4px);
         }
 
         .popup{
           width:100%;
-          max-width:420px; /* 🔥 mobile perfect */
+          max-width:420px;
           background:#fff;
-          border-radius:12px;
+          border-radius:14px;
           overflow:hidden;
           position:relative;
-          animation:fadeIn .3s ease;
+          animation:zoomIn .35s ease;
         }
 
         .banner{
           width:100%;
-          height:220px; /* 🔥 fixed mobile height */
+          height:220px;
           object-fit:cover;
           cursor:pointer;
         }
 
         .inputBox{
-          padding:10px;
+          padding:12px;
           display:flex;
           flex-direction:column;
-          gap:8px;
+          gap:10px;
         }
 
         .inputBox input{
-          padding:10px;
-          border-radius:6px;
+          padding:12px;
+          border-radius:8px;
           border:1px solid #ccc;
-          width:100%;
+          font-size:14px;
         }
 
         .upload{
-          background:#000;
+          background:#111;
           color:#fff;
           padding:10px;
-          border-radius:6px;
+          border-radius:8px;
           text-align:center;
           cursor:pointer;
         }
@@ -378,50 +388,42 @@ const DesktopPopup: React.FC<DesktopPopupProps> = ({
         .inputBox button{
           background:#2563eb;
           color:#fff;
-          padding:10px;
+          padding:12px;
           border:none;
-          border-radius:6px;
+          border-radius:8px;
           cursor:pointer;
+          font-weight:600;
         }
 
         .close{
           position:absolute;
-          top:8px;
-          right:8px;
+          top:10px;
+          right:10px;
           background:#000;
           color:#fff;
           border:none;
-          width:30px;
-          height:30px;
+          width:32px;
+          height:32px;
           border-radius:50%;
           cursor:pointer;
         }
 
-        @keyframes fadeIn{
-          from{opacity:0;transform:scale(.9)}
+        @keyframes zoomIn{
+          from{opacity:0;transform:scale(.8)}
           to{opacity:1;transform:scale(1)}
         }
 
-        /* 💻 Tablet */
+        /* Tablet */
         @media(min-width:600px){
-          .popup{
-            max-width:600px;
-          }
-          .banner{
-            height:300px;
-          }
+          .popup{ max-width:600px; }
+          .banner{ height:300px; }
         }
 
-        /* 🖥 Desktop */
+        /* Desktop */
         @media(min-width:900px){
-          .popup{
-            max-width:900px;
-          }
-          .banner{
-            height:450px;
-          }
+          .popup{ max-width:900px; }
+          .banner{ height:450px; }
         }
-
       `}</style>
     </div>
   );
