@@ -218,14 +218,6 @@
 
 
 
-
-
-
-
-
-
-
-
 import React, { useEffect, useState } from "react";
 
 interface DesktopPopupProps {
@@ -244,25 +236,26 @@ const DesktopPopup: React.FC<DesktopPopupProps> = ({
   const [showMobileInput, setShowMobileInput] = useState(false);
   const [mobileNumber, setMobileNumber] = useState("");
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
+  const [dontShow, setDontShow] = useState(false);
 
-  // Load saved banner
+  // Load saved banner + hide check
   useEffect(() => {
     const saved = localStorage.getItem("bannerUrl");
-    if (saved) setBannerUrl(saved);
-  }, []);
+    const hide = localStorage.getItem("hidePopup");
 
-  // Show popup after delay
-  useEffect(() => {
+    if (saved) setBannerUrl(saved);
+    if (hide === "true") return;
+
     const timer = setTimeout(() => setVisible(true), delay);
     return () => clearTimeout(timer);
   }, [delay]);
 
-  // Disable background scroll
+  // Disable scroll
   useEffect(() => {
     document.body.style.overflow = visible ? "hidden" : "auto";
   }, [visible]);
 
-  // ESC key close
+  // ESC close
   useEffect(() => {
     const handleEsc = (e: KeyboardEvent) => {
       if (e.key === "Escape") setVisible(false);
@@ -280,6 +273,11 @@ const DesktopPopup: React.FC<DesktopPopupProps> = ({
   const handleSubmit = () => {
     const num = mobileNumber.replace(/\D/g, "");
 
+    if (num.length !== 10) {
+      alert("Enter valid 10 digit mobile");
+      return;
+    }
+
     if (num === allowedMobile && uploadedFile) {
       const reader = new FileReader();
       reader.onload = (e) => {
@@ -289,19 +287,28 @@ const DesktopPopup: React.FC<DesktopPopupProps> = ({
         setShowMobileInput(false);
       };
       reader.readAsDataURL(uploadedFile);
+    } else {
+      alert("Not allowed");
     }
 
     setMobileNumber("");
     setUploadedFile(null);
   };
 
+  const handleClose = () => {
+    if (dontShow) {
+      localStorage.setItem("hidePopup", "true");
+    }
+    setVisible(false);
+  };
+
   if (!visible) return null;
 
   return (
-    <div className="overlay" onClick={() => setVisible(false)}>
+    <div className="overlay" onClick={handleClose}>
       <div className="popup" onClick={(e) => e.stopPropagation()}>
         
-        {/* Image */}
+        {/* Banner */}
         <img
           src={bannerUrl}
           alt="banner"
@@ -320,7 +327,7 @@ const DesktopPopup: React.FC<DesktopPopupProps> = ({
             />
 
             <label className="upload">
-              Upload
+              Upload Banner
               <input type="file" hidden onChange={handleFileSelect} />
             </label>
 
@@ -328,8 +335,20 @@ const DesktopPopup: React.FC<DesktopPopupProps> = ({
           </div>
         )}
 
+        {/* Bottom options */}
+        <div className="bottom">
+          <label>
+            <input
+              type="checkbox"
+              checked={dontShow}
+              onChange={() => setDontShow(!dontShow)}
+            />
+            Do not show again
+          </label>
+        </div>
+
         {/* Close */}
-        <button className="close" onClick={() => setVisible(false)}>✕</button>
+        <button className="close" onClick={handleClose}>✕</button>
       </div>
 
       <style>{`
@@ -341,8 +360,7 @@ const DesktopPopup: React.FC<DesktopPopupProps> = ({
           justify-content:center;
           align-items:center;
           z-index:9999;
-          padding:12px;
-          backdrop-filter:blur(4px);
+          backdrop-filter:blur(5px);
         }
 
         .popup{
@@ -352,7 +370,7 @@ const DesktopPopup: React.FC<DesktopPopupProps> = ({
           border-radius:14px;
           overflow:hidden;
           position:relative;
-          animation:zoomIn .35s ease;
+          animation:zoomIn .3s ease;
         }
 
         .banner{
@@ -373,7 +391,6 @@ const DesktopPopup: React.FC<DesktopPopupProps> = ({
           padding:12px;
           border-radius:8px;
           border:1px solid #ccc;
-          font-size:14px;
         }
 
         .upload{
@@ -395,6 +412,12 @@ const DesktopPopup: React.FC<DesktopPopupProps> = ({
           font-weight:600;
         }
 
+        .bottom{
+          padding:10px;
+          font-size:13px;
+          text-align:center;
+        }
+
         .close{
           position:absolute;
           top:10px;
@@ -409,7 +432,7 @@ const DesktopPopup: React.FC<DesktopPopupProps> = ({
         }
 
         @keyframes zoomIn{
-          from{opacity:0;transform:scale(.8)}
+          from{opacity:0;transform:scale(.85)}
           to{opacity:1;transform:scale(1)}
         }
 
@@ -430,3 +453,10 @@ const DesktopPopup: React.FC<DesktopPopupProps> = ({
 };
 
 export default DesktopPopup;
+
+
+
+
+
+
+
