@@ -40,8 +40,7 @@ const CustomerRoutes = () => {
   initialImageUrl="https://cdn.vectorstock.com/i/1000v/19/10/cosmetics-beauty-products-for-make-up-sale-banner-vector-38391910.jpg"
   allowedMobile="9992088843" // sirf ye number se upload ho
   delay={10000} // 10 sec
-  width="1000px"
-  height="500px"
+
 />
       <Routes>
         <Route path='/' element={<Home />} />
