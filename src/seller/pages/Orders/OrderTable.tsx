@@ -292,6 +292,7 @@ import TableContainer from "@mui/material/TableContainer";
 import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
 import Paper from "@mui/material/Paper";
+
 import {
   Box,
   Button,
@@ -450,7 +451,7 @@ export default function OrderTable() {
     if (!printWindow) return;
 
     // Get the logo URL (absolute path to avoid relative path issues)
-    const logoUrl = window.location.origin + "/logo.jpeg";
+ <img src="/logo.jpeg" alt="Selfysnap Logo" />
 
     printWindow.document.write(`
       <!DOCTYPE html>
