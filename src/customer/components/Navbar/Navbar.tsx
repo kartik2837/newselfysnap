@@ -279,7 +279,7 @@ import {
   useTheme,
   Tooltip,
 } from "@mui/material";
-import React, { useState, useEffect } from "react";
+import  { useState, useEffect } from "react";
 import "./Navbar.css";
 import AddShoppingCartIcon from "@mui/icons-material/AddShoppingCart";
 import StorefrontIcon from "@mui/icons-material/Storefront";

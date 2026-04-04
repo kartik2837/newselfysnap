@@ -1,7 +1,11 @@
+
 import axios from 'axios';
 
 export const API_URL = "http://localhost:8080";
-export const DEPLOYED_URL = "https://selfy-zabw.onrender.com"
+// export const DEPLOYED_URL = "https://selfy-zabw.onrender.com"
+
+
+export const DEPLOYED_URL = "https://selfy-1.onrender.com"
 
 // change api
 
